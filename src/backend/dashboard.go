@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package backend
+package main
 
 import (
 	"flag"
@@ -21,10 +21,10 @@ import (
 	"net"
 	"net/http"
 	"os"
-	///"strconv"
+	"strconv"
 
 	"github.com/screen_dashboard/src/backend/handler"
-	//"github.com/screen_dashboard/src/backend/ini"
+	"github.com/screen_dashboard/src/backend/ini"
 	"github.com/spf13/pflag"
 )
 
@@ -37,7 +37,7 @@ func main() {
 	// Set logging output to standard console out
 	log.SetOutput(os.Stdout)
 
-	/*iniPortal, err := iniparser.LoadFile("./portal.ini", "utf-8")
+	iniPortal, err := iniparser.LoadFile("./portal.ini", "utf-8")
 	if err != nil {
 		//
 		print(err)
@@ -47,12 +47,12 @@ func main() {
 		//
 	}
 
-	iport, err := strconv.Atoi(port)
+	iport := *argInsecurePort
+	iport, err = strconv.Atoi(port)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("sss%s", port)*/
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -72,8 +72,8 @@ func main() {
 	//http.Handle("/metrics", prometheus.Handler())
 
 	// Listen for http or https
-	log.Printf("Serving insecurely on HTTP port: %d", *argInsecurePort)
-	addr := fmt.Sprintf("%s:%d", *argInsecureBindAddress, *argInsecurePort)
+	log.Printf("Serving insecurely on HTTP port: %d", iport)
+	addr := fmt.Sprintf("%s:%d", *argInsecureBindAddress, iport)
 	go func() { log.Fatal(http.ListenAndServe(addr, nil)) }()
 
 	select {}
