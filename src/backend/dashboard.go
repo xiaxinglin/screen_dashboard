@@ -18,41 +18,26 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"strconv"
 
-	"github.com/screen_dashboard/src/backend/handler"
-	"github.com/screen_dashboard/src/backend/ini"
+	"github.com/screen_dashboard/backend/src/handler"
+	"github.com/screen_dashboard/backend/src/ini"
 	"github.com/spf13/pflag"
-)
-
-var (
-	argInsecurePort        = pflag.Int("insecure-port", 9090, "The port to listen to for incoming HTTP requests.")
-	argInsecureBindAddress = pflag.IP("insecure-bind-address", net.IPv4(0, 0, 0, 0), "The IP address on which to serve the --port (set to 0.0.0.0 for all interfaces).")
 )
 
 func main() {
 	// Set logging output to standard console out
 	log.SetOutput(os.Stdout)
 
-	iniPortal, err := iniparser.LoadFile("./portal.ini", "utf-8")
+	iniPortal, err := ini.LoadConfiguration("portal.ini")
 	if err != nil {
 		//
 		print(err)
 	}
-	port, ok := iniPortal.GetString("monitor", "port")
-	if !ok {
-		//
-	}
 
-	iport := *argInsecurePort
-	iport, err = strconv.Atoi(port)
-	if err != nil {
-		panic(err)
-	}
-
+	iport := iniPortal.IntegerFromSection("monitor", "port", 9090)
+	ip := iniPortal.StringFromSection("monitor", "ip", "0.0.0.0")
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -72,8 +57,9 @@ func main() {
 	//http.Handle("/metrics", prometheus.Handler())
 
 	// Listen for http or https
-	log.Printf("Serving insecurely on HTTP port: %d", iport)
-	addr := fmt.Sprintf("%s:%d", *argInsecureBindAddress, iport)
+	log.Printf("ip:%s", ip)
+	log.Printf("Serving insecurely on HTTP : port: %d", iport)
+	addr := fmt.Sprintf("%s:%d", ip, iport)
 	go func() { log.Fatal(http.ListenAndServe(addr, nil)) }()
 
 	select {}

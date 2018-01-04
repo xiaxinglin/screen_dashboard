@@ -14,7 +14,7 @@ import (
 	"unicode/utf16"
 	"unicode/utf8"
 	"unsafe"
-	"github.com/screen_dashboard/src/backend/match"
+	"github.com/screen_dashboard/backend/src/match"
 )
 
 // Type is Result type
